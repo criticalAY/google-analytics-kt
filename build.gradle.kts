@@ -1,12 +1,43 @@
 plugins {
     kotlin("jvm") version "2.3.10"
+    id("com.vanniktech.maven.publish") version "0.36.0"
 }
 
-group = "com.criticalay"
-version = "1.0-SNAPSHOT"
+group = "io.github.criticalay"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
+}
+
+mavenPublishing {
+    publishToMavenCentral()
+
+    signAllPublications()
+
+    pom {
+        name.set("google-analytics-kt")
+        description.set("SDKless analytics library")
+        url.set("https://github.com/criticalAY/google-analytics-kt")
+        licenses {
+            license {
+                name.set("The Apache License, Version 2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+        developers {
+            developer {
+                id.set("criticalay")
+                name.set("criticalay")
+                email.set("criticalay@gmail.com")
+            }
+        }
+        scm {
+            connection.set("scm:git:git://github.com/criticalAY/google-analytics-kt.git")
+            developerConnection.set("scm:git:ssh://github.com/criticalAY/google-analytics-kt.git")
+            url.set("https://github.com/criticalAY/google-analytics-kt")
+        }
+    }
 }
 
 dependencies {

@@ -1,6 +1,7 @@
 package com.criticalay.request
 
 import com.criticalay.GoogleAnalytics
+import com.criticalay.internal.SessionManager
 import com.criticalay.response.GaResponse
 
 /**
@@ -69,13 +70,21 @@ abstract class BaseHit<T : BaseHit<T>>(
     fun param(key: String, value: Boolean): T = (this as T).also { event.param(key, value) }
 
     /** Builds the [GaRequest] from this hit's state. */
-    fun buildRequest(): GaRequest = GaRequest(
-        clientId        = clientId,
-        userId          = userId,
-        timestampMicros = timestampMicros,
-        userProperties  = userProperties,
-        events          = listOf(event),
-    )
+    fun buildRequest(): GaRequest {
+        if (!event.params.containsKey("session_id")) {
+            event.param("session_id", SessionManager.sessionId)
+        }
+        if (!event.params.containsKey("engagement_time_msec")) {
+            event.param("engagement_time_msec", 1L)
+        }
+        return GaRequest(
+            clientId        = clientId,
+            userId          = userId,
+            timestampMicros = timestampMicros,
+            userProperties  = userProperties,
+            events          = listOf(event),
+        )
+    }
 
     /**
      * Sends the hit **synchronously** (suspending).
