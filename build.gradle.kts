@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.3.10"
     id("com.vanniktech.maven.publish") version "0.36.0"
+    kotlin("plugin.serialization") version "2.3.10"
 }
 
 group = "io.github.criticalay"
