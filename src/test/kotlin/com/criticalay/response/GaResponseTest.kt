@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GaResponseTest {
-
     @Test
     fun `isSuccess is true for 2xx status codes`() {
         assertTrue(GaResponse(statusCode = 200).isSuccess)
@@ -48,12 +47,14 @@ class GaResponseTest {
 
     @Test
     fun `isValid is false when there are validation messages`() {
-        val resp = GaResponse(
-            statusCode = 200,
-            validationMessages = listOf(
-                ValidationMessage("events[0].name", "Reserved", "NAME_RESERVED")
-            ),
-        )
+        val resp =
+            GaResponse(
+                statusCode = 200,
+                validationMessages =
+                    listOf(
+                        ValidationMessage("events[0].name", "Reserved", "NAME_RESERVED"),
+                    ),
+            )
         assertFalse(resp.isValid)
     }
 
@@ -67,11 +68,12 @@ class GaResponseTest {
 
     @Test
     fun `ValidationMessage exposes its fields`() {
-        val msg = ValidationMessage(
-            fieldPath = "events[0].name",
-            description = "Invalid",
-            validationCode = "BAD_NAME",
-        )
+        val msg =
+            ValidationMessage(
+                fieldPath = "events[0].name",
+                description = "Invalid",
+                validationCode = "BAD_NAME",
+            )
         assertEquals("events[0].name", msg.fieldPath)
         assertEquals("Invalid", msg.description)
         assertEquals("BAD_NAME", msg.validationCode)

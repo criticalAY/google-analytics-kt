@@ -18,7 +18,6 @@ package com.criticalay.request
 
 import com.criticalay.GoogleAnalytics
 
-
 /**
  * Hit builder for the GA4 `page_view` event.
  *
@@ -32,9 +31,10 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class PageViewHit(clientId: String, ga: GoogleAnalytics)
-    : BaseHit<PageViewHit>("page_view", clientId, ga) {
-
+class PageViewHit(
+    clientId: String,
+    ga: GoogleAnalytics,
+) : BaseHit<PageViewHit>("page_view", clientId, ga) {
     /**
      * Full URL of the page being viewed.
      * Equivalent to the `dl` (document location) parameter in UA.

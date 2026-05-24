@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.3.10"
     id("com.vanniktech.maven.publish") version "0.36.0"
     kotlin("plugin.serialization") version "2.3.10"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "io.github.criticalay"
@@ -49,7 +50,6 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
     implementation("org.slf4j:slf4j-api:2.0.13")
 
-
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("io.mockk:mockk:1.13.8")
@@ -61,4 +61,13 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+ktlint {
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/build/**")
+    }
 }

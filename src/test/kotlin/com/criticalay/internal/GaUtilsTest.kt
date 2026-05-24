@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GaUtilsTest {
-
     // ---------- isBlank / isNotBlank ----------
 
     @Test

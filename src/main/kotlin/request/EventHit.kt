@@ -34,14 +34,16 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class EventHit(clientId: String, ga: GoogleAnalytics)
-    : BaseHit<EventHit>("event", clientId, ga) {
-
-    fun eventName(name: String): EventHit = apply {
-        // Mutate the underlying Ga4Event's name via a replacement — we copy into params
-        // and set a special internal key used by Ga4Impl to override the name.
-        event.param("_event_name_override", name)
-    }
+class EventHit(
+    clientId: String,
+    ga: GoogleAnalytics,
+) : BaseHit<EventHit>("event", clientId, ga) {
+    fun eventName(name: String): EventHit =
+        apply {
+            // Mutate the underlying Ga4Event's name via a replacement — we copy into params
+            // and set a special internal key used by Ga4Impl to override the name.
+            event.param("_event_name_override", name)
+        }
 
     /** The event category (stored as the `event_category` parameter). */
     fun category(value: String): EventHit = apply { event.param("event_category", value) }

@@ -32,12 +32,13 @@ class CustomHitTest {
 
     @Test
     fun `custom hit accepts arbitrary parameters via inherited param methods`() {
-        val hit = CustomHit("client-1", "tool_used", mockGa)
-            .param("tool_name", "brush")
-            .param("duration_ms", 3400L)
-            .param("canvas_width", 1920)
-            .param("flag", true)
-            .param("ratio", 1.5)
+        val hit =
+            CustomHit("client-1", "tool_used", mockGa)
+                .param("tool_name", "brush")
+                .param("duration_ms", 3400L)
+                .param("canvas_width", 1920)
+                .param("flag", true)
+                .param("ratio", 1.5)
 
         val params = hit.event.params
         assertEquals("brush", params["tool_name"])

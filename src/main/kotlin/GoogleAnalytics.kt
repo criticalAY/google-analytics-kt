@@ -36,7 +36,6 @@ import com.criticalay.response.GaResponse
  * Event delivery depends on [inSample] and configuration in [config].
  */
 interface GoogleAnalytics : AutoCloseable {
-
     /** The active configuration. */
     val config: GoogleAnalyticsConfig
 
@@ -44,6 +43,7 @@ interface GoogleAnalytics : AutoCloseable {
     val inSample: Boolean
 
     // Hit-type factory methods
+
     /**
      * Creates a [PageViewHit] builder pre-configured for [clientId].
      * Call [PageViewHit.send] (or [PageViewHit.sendAsync]) when ready.
@@ -66,7 +66,10 @@ interface GoogleAnalytics : AutoCloseable {
      * Creates a [CustomHit] builder for an arbitrary GA4 event name.
      * The [name] must follow GA4 naming rules (letters, digits, underscores, max 40 chars).
      */
-    fun custom(clientId: String, name: String): CustomHit
+    fun custom(
+        clientId: String,
+        name: String,
+    ): CustomHit
 
     /**
      * Sends a fully constructed [GaRequest] synchronously.
@@ -102,7 +105,6 @@ interface GoogleAnalytics : AutoCloseable {
          * }
          * ```
          */
-        fun builder(block: GoogleAnalyticsBuilder.() -> Unit): GoogleAnalytics =
-            GoogleAnalyticsBuilder().apply(block).build()
+        fun builder(block: GoogleAnalyticsBuilder.() -> Unit): GoogleAnalytics = GoogleAnalyticsBuilder().apply(block).build()
     }
 }

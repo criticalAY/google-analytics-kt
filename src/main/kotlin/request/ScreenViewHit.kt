@@ -18,7 +18,6 @@ package com.criticalay.request
 
 import com.criticalay.GoogleAnalytics
 
-
 /**
  * Hit builder for the GA4 `screen_view` event.
  *
@@ -32,9 +31,10 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class ScreenViewHit(clientId: String, ga: GoogleAnalytics)
-    : BaseHit<ScreenViewHit>("screen_view", clientId, ga) {
-
+class ScreenViewHit(
+    clientId: String,
+    ga: GoogleAnalytics,
+) : BaseHit<ScreenViewHit>("screen_view", clientId, ga) {
     /** The screen name or identifier the user is currently viewing. */
     fun screenName(name: String): ScreenViewHit = apply { event.param("screen_name", name) }
 

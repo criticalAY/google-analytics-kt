@@ -26,10 +26,11 @@ class PageViewHitTest {
 
     @Test
     fun `page view hit maps fields to GA4 parameters`() {
-        val hit = PageViewHit("client-1", mockGa)
-            .pageLocation("https://app.com/home")
-            .pageTitle("Home")
-            .pageReferrer("https://google.com")
+        val hit =
+            PageViewHit("client-1", mockGa)
+                .pageLocation("https://app.com/home")
+                .pageTitle("Home")
+                .pageReferrer("https://google.com")
 
         val params = hit.event.params
         assertEquals("https://app.com/home", params["page_location"])
