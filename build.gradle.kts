@@ -71,3 +71,20 @@ ktlint {
         exclude("**/build/**")
     }
 }
+
+// `.git` is a directory in a normal clone and a file in a worktree, so test for existence only.
+val gitMetadata = rootProject.file(".git")
+val runningOnCi = providers.environmentVariable("CI").isPresent
+
+val installGitHooks by tasks.registering(Exec::class) {
+    description = "Configures git core.hooksPath to .githooks (enables ktlint pre-commit hook)."
+    group = "build setup"
+    // Setting the same value twice is a no-op, so there is nothing to read back first.
+    commandLine("git", "config", "core.hooksPath", ".githooks")
+    isIgnoreExitValue = true
+    onlyIf { gitMetadata.exists() && !runningOnCi }
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(installGitHooks)
+}
