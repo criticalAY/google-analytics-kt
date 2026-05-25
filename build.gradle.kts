@@ -71,3 +71,30 @@ ktlint {
         exclude("**/build/**")
     }
 }
+
+val installGitHooks by tasks.registering {
+    description = "Configures git core.hooksPath to .githooks (enables ktlint pre-commit hook)."
+    group = "build setup"
+    onlyIf { file(".git").isDirectory && System.getenv("CI") == null }
+    doLast {
+        val current = ProcessBuilder("git", "config", "--get", "core.hooksPath")
+            .redirectErrorStream(true)
+            .start()
+            .let { p ->
+                val out = p.inputStream.bufferedReader().readText().trim()
+                p.waitFor()
+                out
+            }
+        if (current != ".githooks") {
+            ProcessBuilder("git", "config", "core.hooksPath", ".githooks")
+                .inheritIO()
+                .start()
+                .waitFor()
+            logger.lifecycle("Configured git core.hooksPath to .githooks (ktlint pre-commit hook active)")
+        }
+    }
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(installGitHooks)
+}

@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# Pre-commit hook: runs ktlintCheck if any Kotlin files are staged.
+# Activated automatically by Gradle (sets core.hooksPath=.githooks on build).
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(kt|kts)$' || true)
+
+if [ -z "$staged" ]; then
+    exit 0
+fi
+
+echo "Running ktlintCheck on staged Kotlin files..."
+if ! ./gradlew --quiet ktlintCheck; then
+    echo ""
+    echo "ktlint violations found."
+    echo "Run './gradlew ktlintFormat' to auto-fix, then re-stage and commit."
+    exit 1
+fi
