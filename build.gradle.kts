@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.3.10"
     id("com.vanniktech.maven.publish") version "0.36.0"
     kotlin("plugin.serialization") version "2.3.10"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "io.github.criticalay"
@@ -49,7 +50,6 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
     implementation("org.slf4j:slf4j-api:2.0.13")
 
-
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("io.mockk:mockk:1.13.8")
@@ -61,4 +61,40 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+ktlint {
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/build/**")
+    }
+}
+
+val installGitHooks by tasks.registering {
+    description = "Configures git core.hooksPath to .githooks (enables ktlint pre-commit hook)."
+    group = "build setup"
+    onlyIf { file(".git").isDirectory && System.getenv("CI") == null }
+    doLast {
+        val current = ProcessBuilder("git", "config", "--get", "core.hooksPath")
+            .redirectErrorStream(true)
+            .start()
+            .let { p ->
+                val out = p.inputStream.bufferedReader().readText().trim()
+                p.waitFor()
+                out
+            }
+        if (current != ".githooks") {
+            ProcessBuilder("git", "config", "core.hooksPath", ".githooks")
+                .inheritIO()
+                .start()
+                .waitFor()
+            logger.lifecycle("Configured git core.hooksPath to .githooks (ktlint pre-commit hook active)")
+        }
+    }
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(installGitHooks)
 }

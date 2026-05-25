@@ -29,9 +29,10 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class ExceptionHit(clientId: String, ga: GoogleAnalytics)
-    : BaseHit<ExceptionHit>("exception", clientId, ga) {
-
+class ExceptionHit(
+    clientId: String,
+    ga: GoogleAnalytics,
+) : BaseHit<ExceptionHit>("exception", clientId, ga) {
     /**
      * A description of the exception (max 150 characters in UA, no hard limit in GA4).
      * Stored in the `description` event parameter.
@@ -42,15 +43,20 @@ class ExceptionHit(clientId: String, ga: GoogleAnalytics)
      * Convenience overload that records the exception message and optionally the
      * abbreviated stack trace as the description.
      */
-    fun exception(e: Throwable, includeStack: Boolean = false): ExceptionHit = apply {
-        val desc = if (includeStack) {
-            val stack = e.stackTrace.take(5).joinToString(" | ") { it.toString() }
-            "${e::class.simpleName}: ${e.message} @ $stack"
-        } else {
-            "${e::class.simpleName}: ${e.message}"
+    fun exception(
+        e: Throwable,
+        includeStack: Boolean = false,
+    ): ExceptionHit =
+        apply {
+            val desc =
+                if (includeStack) {
+                    val stack = e.stackTrace.take(5).joinToString(" | ") { it.toString() }
+                    "${e::class.simpleName}: ${e.message} @ $stack"
+                } else {
+                    "${e::class.simpleName}: ${e.message}"
+                }
+            event.param("description", desc.take(500))
         }
-        event.param("description", desc.take(500))
-    }
 
     /**
      * Whether the exception was fatal (caused the application to crash).

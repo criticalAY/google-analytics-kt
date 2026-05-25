@@ -22,7 +22,6 @@ import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
 
 class GaRequestTest {
-
     private fun event(name: String = "test") = GaEvent(name)
 
     @Test

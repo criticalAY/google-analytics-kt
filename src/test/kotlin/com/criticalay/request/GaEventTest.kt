@@ -22,15 +22,15 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class GaEventTest {
-
     @Test
     fun `param methods store values with correct types`() {
-        val event = GaEvent("test_event")
-            .param("str_key", "hello")
-            .param("int_key", 42)
-            .param("long_key", 9_000_000_000L)
-            .param("double_key", 3.14)
-            .param("bool_key", true)
+        val event =
+            GaEvent("test_event")
+                .param("str_key", "hello")
+                .param("int_key", 42)
+                .param("long_key", 9_000_000_000L)
+                .param("double_key", 3.14)
+                .param("bool_key", true)
 
         assertEquals("hello", event.params["str_key"])
         assertEquals(42, event.params["int_key"])
@@ -41,10 +41,11 @@ class GaEventTest {
 
     @Test
     fun `param overwrites existing key with last value wins`() {
-        val event = GaEvent("test_event")
-            .param("key", "first")
-            .param("key", "second")
-            .param("key", 99)
+        val event =
+            GaEvent("test_event")
+                .param("key", "first")
+                .param("key", "second")
+                .param("key", 99)
 
         assertEquals(99, event.params["key"])
         assertEquals(1, event.params.size)
@@ -52,9 +53,10 @@ class GaEventTest {
 
     @Test
     fun `params bulk-add merges into existing params`() {
-        val event = GaEvent("test_event")
-            .param("existing", "value")
-            .params(mapOf("a" to 1, "b" to "two"))
+        val event =
+            GaEvent("test_event")
+                .param("existing", "value")
+                .params(mapOf("a" to 1, "b" to "two"))
 
         assertEquals("value", event.params["existing"])
         assertEquals(1, event.params["a"])
@@ -64,9 +66,10 @@ class GaEventTest {
 
     @Test
     fun `params bulk-add overwrites existing keys`() {
-        val event = GaEvent("test_event")
-            .param("k", "old")
-            .params(mapOf("k" to "new"))
+        val event =
+            GaEvent("test_event")
+                .param("k", "old")
+                .params(mapOf("k" to "new"))
 
         assertEquals("new", event.params["k"])
     }

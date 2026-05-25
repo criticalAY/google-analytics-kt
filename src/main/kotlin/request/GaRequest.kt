@@ -41,19 +41,14 @@ import kotlinx.serialization.Serializable
 data class GaRequest(
     @SerialName("client_id")
     val clientId: String? = null,
-
     @SerialName("app_instance_id")
     val appInstanceId: String? = null,
-
     @SerialName("user_id")
     val userId: String? = null,
-
     @SerialName("timestamp_micros")
     val timestampMicros: Long? = null,
-
     @SerialName("user_properties")
     val userProperties: Map<String, UserPropertyValue> = emptyMap(),
-
     val events: List<GaEvent> = emptyList(),
 ) {
     init {
@@ -61,7 +56,7 @@ data class GaRequest(
             "Either clientId or appInstanceId must be provided"
         }
         require(events.isNotEmpty()) { "At least one event is required" }
-        require(events.size <= 25)   { "Maximum 25 events per request (GA4 limit)" }
+        require(events.size <= 25) { "Maximum 25 events per request (GA4 limit)" }
     }
 }
 

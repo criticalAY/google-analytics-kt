@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # Gradle dependencies (build.gradle.kts) and Gradle plugins.
+  # Dependabot's gradle ecosystem excludes pre-release qualifiers
+  # (-rc, -alpha, -beta, -SNAPSHOT, -M*) by default, so only stable
+  # releases will be proposed.
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "gradle"
+    commit-message:
+      prefix: "deps"
+
+  # GitHub Actions used in workflows (.github/workflows/*).
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"

@@ -31,22 +31,41 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GaEvent(
     val name: String,
-    val params: MutableMap<String, @Serializable(with = AnyValueSerializer::class) Any> = mutableMapOf(),
+    val params: MutableMap<
+        String,
+        @Serializable(with = AnyValueSerializer::class)
+        Any,
+    > = mutableMapOf(),
 ) {
     /** Adds or replaces a string parameter. */
-    fun param(key: String, value: String): GaEvent = apply { params[key] = value }
+    fun param(
+        key: String,
+        value: String,
+    ): GaEvent = apply { params[key] = value }
 
     /** Adds or replaces an integer parameter. */
-    fun param(key: String, value: Int): GaEvent = apply { params[key] = value }
+    fun param(
+        key: String,
+        value: Int,
+    ): GaEvent = apply { params[key] = value }
 
     /** Adds or replaces a long parameter. */
-    fun param(key: String, value: Long): GaEvent = apply { params[key] = value }
+    fun param(
+        key: String,
+        value: Long,
+    ): GaEvent = apply { params[key] = value }
 
     /** Adds or replaces a double parameter. */
-    fun param(key: String, value: Double): GaEvent = apply { params[key] = value }
+    fun param(
+        key: String,
+        value: Double,
+    ): GaEvent = apply { params[key] = value }
 
     /** Adds or replaces a boolean parameter. */
-    fun param(key: String, value: Boolean): GaEvent = apply { params[key] = value }
+    fun param(
+        key: String,
+        value: Boolean,
+    ): GaEvent = apply { params[key] = value }
 
     /** Bulk-adds parameters from a map. */
     fun params(map: Map<String, Any>): GaEvent = apply { params.putAll(map) }

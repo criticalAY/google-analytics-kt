@@ -53,19 +53,21 @@ abstract class BaseHit<T : BaseHit<T>>(
      * Session identifier — required for user activity to appear in standard
      * GA4 reports.  Usually a Unix-epoch-second string or UUID.
      */
-    fun sessionId(value: String): T = (this as T).also {
-        event.param("session_id", value)
-        sessionId = value
-    }
+    fun sessionId(value: String): T =
+        (this as T).also {
+            event.param("session_id", value)
+            sessionId = value
+        }
 
     /**
      * Engagement time in milliseconds.  Required for sessions to count as
      * "engaged sessions" in GA4 reports.  Minimum recommended value: 1.
      */
-    fun engagementTimeMs(value: Long): T = (this as T).also {
-        event.param("engagement_time_msec", value)
-        engagementTimeMs = value
-    }
+    fun engagementTimeMs(value: Long): T =
+        (this as T).also {
+            event.param("engagement_time_msec", value)
+            engagementTimeMs = value
+        }
 
     /**
      * Unix timestamp in **microseconds** for when the event occurred.
@@ -74,16 +76,39 @@ abstract class BaseHit<T : BaseHit<T>>(
     fun timestampMicros(value: Long): T = (this as T).also { timestampMicros = value }
 
     /** Adds a user-scoped custom property. */
-    fun userProperty(key: String, value: String): T = (this as T).also {
-        userProperties[key] = UserPropertyValue(value)
-    }
+    fun userProperty(
+        key: String,
+        value: String,
+    ): T =
+        (this as T).also {
+            userProperties[key] = UserPropertyValue(value)
+        }
 
     /** Adds an arbitrary event-level parameter. */
-    fun param(key: String, value: String): T  = (this as T).also { event.param(key, value) }
-    fun param(key: String, value: Int): T     = (this as T).also { event.param(key, value) }
-    fun param(key: String, value: Long): T    = (this as T).also { event.param(key, value) }
-    fun param(key: String, value: Double): T  = (this as T).also { event.param(key, value) }
-    fun param(key: String, value: Boolean): T = (this as T).also { event.param(key, value) }
+    fun param(
+        key: String,
+        value: String,
+    ): T = (this as T).also { event.param(key, value) }
+
+    fun param(
+        key: String,
+        value: Int,
+    ): T = (this as T).also { event.param(key, value) }
+
+    fun param(
+        key: String,
+        value: Long,
+    ): T = (this as T).also { event.param(key, value) }
+
+    fun param(
+        key: String,
+        value: Double,
+    ): T = (this as T).also { event.param(key, value) }
+
+    fun param(
+        key: String,
+        value: Boolean,
+    ): T = (this as T).also { event.param(key, value) }
 
     /** Builds the [GaRequest] from this hit's state. */
     fun buildRequest(): GaRequest {
@@ -94,11 +119,11 @@ abstract class BaseHit<T : BaseHit<T>>(
             event.param("engagement_time_msec", 1L)
         }
         return GaRequest(
-            clientId        = clientId,
-            userId          = userId,
+            clientId = clientId,
+            userId = userId,
             timestampMicros = timestampMicros,
-            userProperties  = userProperties,
-            events          = listOf(event),
+            userProperties = userProperties,
+            events = listOf(event),
         )
     }
 

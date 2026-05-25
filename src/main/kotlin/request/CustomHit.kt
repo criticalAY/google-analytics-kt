@@ -41,5 +41,8 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class CustomHit(clientId: String, eventName: String, ga: GoogleAnalytics)
-    : BaseHit<CustomHit>(eventName, clientId, ga)
+class CustomHit(
+    clientId: String,
+    eventName: String,
+    ga: GoogleAnalytics,
+) : BaseHit<CustomHit>(eventName, clientId, ga)
