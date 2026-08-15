@@ -16,7 +16,6 @@
 
 package com.criticalay
 
-
 /**
  * Configuration for the GA4 Measurement Protocol SDK.
  *
@@ -59,7 +58,7 @@ data class GoogleAnalyticsConfig(
 ) {
     companion object {
         const val DEFAULT_ENDPOINT = "https://www.google-analytics.com/mp/collect"
-        const val DEBUG_ENDPOINT   = "https://www.google-analytics.com/debug/mp/collect"
+        const val DEBUG_ENDPOINT = "https://www.google-analytics.com/debug/mp/collect"
     }
 
     /** Returns the effective endpoint URL (debug or standard). */
@@ -67,8 +66,8 @@ data class GoogleAnalyticsConfig(
 
     init {
         require(measurementId.isNotBlank()) { "measurementId must not be blank" }
-        require(apiSecret.isNotBlank())     { "apiSecret must not be blank" }
+        require(apiSecret.isNotBlank()) { "apiSecret must not be blank" }
         require(samplePercentage in 1..100) { "samplePercentage must be between 1 and 100" }
-        require(batchSize in 1..25)         { "batchSize must be between 1 and 25 (GA4 limit)" }
+        require(batchSize in 1..25) { "batchSize must be between 1 and 25 (GA4 limit)" }
     }
 }

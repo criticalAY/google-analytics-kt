@@ -39,7 +39,6 @@ import java.net.InetSocketAddress
 import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
-
 private val logger = KotlinLogging.logger {}
 
 /**
@@ -53,20 +52,24 @@ private val logger = KotlinLogging.logger {}
  * - Parses validation messages from the debug endpoint response body.
  * - Executes HTTP calls on [Dispatchers.IO].
  */
-class OkHttpClientImpl(private val config: GoogleAnalyticsConfig) : AutoCloseable {
-
+class OkHttpClientImpl(
+    private val config: GoogleAnalyticsConfig,
+) : AutoCloseable {
     @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
-    private val json = Json {
-        encodeDefaults = false
-        explicitNulls   = false
-    }
+    private val json =
+        Json {
+            encodeDefaults = false
+            explicitNulls = false
+        }
 
     private val client: OkHttpClient = buildClient()
 
     private fun buildClient(): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-            .connectTimeout(config.connectTimeoutMs, TimeUnit.MILLISECONDS)
-            .readTimeout(config.readTimeoutMs, TimeUnit.MILLISECONDS)
+        val builder =
+            OkHttpClient
+                .Builder()
+                .connectTimeout(config.connectTimeoutMs, TimeUnit.MILLISECONDS)
+                .readTimeout(config.readTimeoutMs, TimeUnit.MILLISECONDS)
 
         if (!config.proxyHost.isNullOrBlank() && config.proxyPort > 0) {
             logger.debug { "Configuring proxy: ${config.proxyHost}:${config.proxyPort}" }
@@ -74,7 +77,7 @@ class OkHttpClientImpl(private val config: GoogleAnalyticsConfig) : AutoCloseabl
                 Proxy(
                     Proxy.Type.HTTP,
                     InetSocketAddress(config.proxyHost, config.proxyPort),
-                )
+                ),
             )
         }
 
@@ -87,40 +90,44 @@ class OkHttpClientImpl(private val config: GoogleAnalyticsConfig) : AutoCloseabl
      *
      * @return [GaResponse] with the HTTP status code and any debug validation messages.
      */
-    suspend fun post(request: GaRequest): GaResponse = withContext(Dispatchers.IO) {
-        val bodyJson = json.encodeToString(request)
-        logger.debug { "GA4 request body: $bodyJson" }
+    suspend fun post(request: GaRequest): GaResponse =
+        withContext(Dispatchers.IO) {
+            val bodyJson = json.encodeToString(request)
+            logger.debug { "GA4 request body: $bodyJson" }
 
-        val url = buildUrl()
-        val okRequest = Request.Builder()
-            .url(url)
-            .post(bodyJson.toRequestBody("application/json; charset=utf-8".toMediaType()))
-            .build()
+            val url = buildUrl()
+            val okRequest =
+                Request
+                    .Builder()
+                    .url(url)
+                    .post(bodyJson.toRequestBody("application/json; charset=utf-8".toMediaType()))
+                    .build()
 
-        try {
-            client.newCall(okRequest).execute().use { response ->
-                val statusCode = response.code
-                val responseBody = response.body?.string() ?: ""
+            try {
+                client.newCall(okRequest).execute().use { response ->
+                    val statusCode = response.code
+                    val responseBody = response.body?.string() ?: ""
 
-                logger.debug { "GA4 response: $statusCode — $responseBody" }
+                    logger.debug { "GA4 response: $statusCode — $responseBody" }
 
-                val validationMessages = if (config.debug && responseBody.isNotBlank()) {
-                    parseValidationMessages(responseBody)
-                } else {
-                    emptyList()
+                    val validationMessages =
+                        if (config.debug && responseBody.isNotBlank()) {
+                            parseValidationMessages(responseBody)
+                        } else {
+                            emptyList()
+                        }
+
+                    GaResponse(
+                        statusCode = statusCode,
+                        requestBody = bodyJson,
+                        validationMessages = validationMessages,
+                    )
                 }
-
-                GaResponse(
-                    statusCode          = statusCode,
-                    requestBody         = bodyJson,
-                    validationMessages  = validationMessages,
-                )
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to send GA4 request to $url" }
+                GaResponse(statusCode = -1, requestBody = bodyJson)
             }
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to send GA4 request to $url" }
-            GaResponse(statusCode = -1, requestBody = bodyJson)
         }
-    }
 
     /**
      * Builds the full POST URL with required query parameters.
@@ -129,10 +136,14 @@ class OkHttpClientImpl(private val config: GoogleAnalyticsConfig) : AutoCloseabl
      * Debug:     `https://www.google-analytics.com/debug/mp/collect?measurement_id=G-XXX&api_secret=XXX`
      */
     private fun buildUrl(): String {
-        val base = config.effectiveEndpointUrl().toHttpUrl().newBuilder()
-            .addQueryParameter("measurement_id", config.measurementId)
-            .addQueryParameter("api_secret", config.apiSecret)
-            .build()
+        val base =
+            config
+                .effectiveEndpointUrl()
+                .toHttpUrl()
+                .newBuilder()
+                .addQueryParameter("measurement_id", config.measurementId)
+                .addQueryParameter("api_secret", config.apiSecret)
+                .build()
         return base.toString()
     }
 
@@ -155,14 +166,15 @@ class OkHttpClientImpl(private val config: GoogleAnalyticsConfig) : AutoCloseabl
     private fun parseValidationMessages(responseBody: String): List<ValidationMessage> {
         return try {
             val root: JsonObject = Json.parseToJsonElement(responseBody).jsonObject
-            val messagesArray: JsonArray = root["validationMessages"]?.jsonArray
-                ?: return emptyList()
+            val messagesArray: JsonArray =
+                root["validationMessages"]?.jsonArray
+                    ?: return emptyList()
 
             messagesArray.map { element ->
                 val obj = element.jsonObject
                 ValidationMessage(
-                    fieldPath      = obj["fieldPath"]?.jsonPrimitive?.content ?: "",
-                    description    = obj["description"]?.jsonPrimitive?.content ?: "",
+                    fieldPath = obj["fieldPath"]?.jsonPrimitive?.content ?: "",
+                    description = obj["description"]?.jsonPrimitive?.content ?: "",
                     validationCode = obj["validationCode"]?.jsonPrimitive?.content ?: "",
                 )
             }

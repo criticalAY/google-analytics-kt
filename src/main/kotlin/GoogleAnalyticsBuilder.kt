@@ -16,8 +16,8 @@
 
 package com.criticalay
 
-import com.criticalay.internal.GaImpl
 import com.criticalay.httpclient.OkHttpClientImpl
+import com.criticalay.internal.GaImpl
 
 /**
  * Builder for configuring and creating a [GoogleAnalytics] instance.
@@ -51,7 +51,6 @@ import com.criticalay.httpclient.OkHttpClientImpl
  * Call [build] to create a fully configured [GoogleAnalytics] instance.
  */
 class GoogleAnalyticsBuilder {
-
     /** GA4 Measurement ID (e.g. "G-XXXXXXXX"). **Required.** */
     var measurementId: String = ""
 
@@ -106,22 +105,23 @@ class GoogleAnalyticsBuilder {
 
     /** Builds and returns a fully initialized [GoogleAnalytics] instance. */
     fun build(): GoogleAnalytics {
-        val config = GoogleAnalyticsConfig(
-            measurementId   = measurementId,
-            apiSecret       = apiSecret,
-            appName         = appName,
-            appVersion      = appVersion,
-            enabled         = enabled,
-            debug           = debug,
-            samplePercentage = samplePercentage,
-            batchingEnabled = batchingEnabled,
-            batchSize       = batchSize,
-            endpointUrl     = endpointUrl,
-            proxyHost       = proxyHost,
-            proxyPort       = proxyPort,
-            connectTimeoutMs = connectTimeoutMs,
-            readTimeoutMs   = readTimeoutMs,
-        )
+        val config =
+            GoogleAnalyticsConfig(
+                measurementId = measurementId,
+                apiSecret = apiSecret,
+                appName = appName,
+                appVersion = appVersion,
+                enabled = enabled,
+                debug = debug,
+                samplePercentage = samplePercentage,
+                batchingEnabled = batchingEnabled,
+                batchSize = batchSize,
+                endpointUrl = endpointUrl,
+                proxyHost = proxyHost,
+                proxyPort = proxyPort,
+                connectTimeoutMs = connectTimeoutMs,
+                readTimeoutMs = readTimeoutMs,
+            )
         val httpClient = OkHttpClientImpl(config)
         return GaImpl(config, httpClient)
     }

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GoogleAnalyticsConfigTest {
-
     private fun validConfig(
         measurementId: String = "G-TEST",
         apiSecret: String = "secret",
@@ -103,10 +102,11 @@ class GoogleAnalyticsConfigTest {
 
     @Test
     fun `effectiveEndpointUrl should ignore custom endpointUrl when debug is true`() {
-        val config = validConfig(
-            debug = true,
-            endpointUrl = "https://example.com/collect",
-        )
+        val config =
+            validConfig(
+                debug = true,
+                endpointUrl = "https://example.com/collect",
+            )
         assertEquals(GoogleAnalyticsConfig.DEBUG_ENDPOINT, config.effectiveEndpointUrl())
     }
 

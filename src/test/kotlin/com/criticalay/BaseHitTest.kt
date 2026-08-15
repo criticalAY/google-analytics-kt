@@ -17,7 +17,9 @@
 package com.criticalay
 
 import com.criticalay.request.EventHit
+import com.criticalay.request.GaRequest
 import com.criticalay.request.UserPropertyValue
+import com.criticalay.response.GaResponse
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -29,8 +31,6 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import com.criticalay.request.GaRequest
-import com.criticalay.response.GaResponse
 
 class BaseHitTest {
     private val mockGa = mockk<GoogleAnalytics>(relaxed = true)
@@ -57,9 +57,10 @@ class BaseHitTest {
 
     @Test
     fun `userProperty stores wrapped values in the userProperties map`() {
-        val hit = EventHit("c1", mockGa)
-            .userProperty("plan", "premium")
-            .userProperty("locale", "en_IN")
+        val hit =
+            EventHit("c1", mockGa)
+                .userProperty("plan", "premium")
+                .userProperty("locale", "en_IN")
 
         assertEquals(UserPropertyValue("premium"), hit.userProperties["plan"])
         assertEquals(UserPropertyValue("en_IN"), hit.userProperties["locale"])
@@ -74,12 +75,13 @@ class BaseHitTest {
 
     @Test
     fun `param overloads cover all primitive types`() {
-        val hit = EventHit("c1", mockGa)
-            .param("s", "v")
-            .param("i", 1)
-            .param("l", 2L)
-            .param("d", 3.0)
-            .param("b", true)
+        val hit =
+            EventHit("c1", mockGa)
+                .param("s", "v")
+                .param("i", 1)
+                .param("l", 2L)
+                .param("d", 3.0)
+                .param("b", true)
 
         val params = hit.event.params
         assertEquals("v", params["s"])
@@ -101,9 +103,10 @@ class BaseHitTest {
 
     @Test
     fun `buildRequest preserves explicit session_id and engagement_time_msec`() {
-        val hit = EventHit("c1", mockGa)
-            .sessionId("explicit-session")
-            .engagementTimeMs(5000L)
+        val hit =
+            EventHit("c1", mockGa)
+                .sessionId("explicit-session")
+                .engagementTimeMs(5000L)
         val request = hit.buildRequest()
 
         val event = request.events.single()
@@ -113,10 +116,11 @@ class BaseHitTest {
 
     @Test
     fun `buildRequest carries clientId, userId, timestamp and user properties`() {
-        val hit = EventHit("client-42", mockGa)
-            .userId("user-1")
-            .timestampMicros(1_700_000_000_000_000L)
-            .userProperty("plan", "free")
+        val hit =
+            EventHit("client-42", mockGa)
+                .userId("user-1")
+                .timestampMicros(1_700_000_000_000_000L)
+                .userProperty("plan", "free")
         val request = hit.buildRequest()
 
         assertEquals("client-42", request.clientId)
@@ -134,17 +138,18 @@ class BaseHitTest {
     }
 
     @Test
-    fun `send delegates to the GoogleAnalytics instance with the built request`() = runBlocking {
-        val captured = slot<GaRequest>()
-        coEvery { mockGa.send(capture(captured)) } returns GaResponse(statusCode = 204)
+    fun `send delegates to the GoogleAnalytics instance with the built request`() =
+        runBlocking {
+            val captured = slot<GaRequest>()
+            coEvery { mockGa.send(capture(captured)) } returns GaResponse(statusCode = 204)
 
-        val response = EventHit("c1", mockGa).category("ui").send()
+            val response = EventHit("c1", mockGa).category("ui").send()
 
-        coVerify(exactly = 1) { mockGa.send(any()) }
-        assertEquals(204, response.statusCode)
-        assertEquals("c1", captured.captured.clientId)
-        assertTrue(captured.captured.events.isNotEmpty())
-    }
+            coVerify(exactly = 1) { mockGa.send(any()) }
+            assertEquals(204, response.statusCode)
+            assertEquals("c1", captured.captured.clientId)
+            assertTrue(captured.captured.events.isNotEmpty())
+        }
 
     @Test
     fun `sendAsync delegates to the GoogleAnalytics instance`() {

@@ -26,10 +26,11 @@ class ScreenViewHitTest {
 
     @Test
     fun `screen view hit maps fields to GA4 parameters`() {
-        val hit = ScreenViewHit("client-1", mockGa)
-            .screenName("HomeScreen")
-            .appName("MyApp")
-            .appVersion("1.2.3")
+        val hit =
+            ScreenViewHit("client-1", mockGa)
+                .screenName("HomeScreen")
+                .appName("MyApp")
+                .appVersion("1.2.3")
 
         val params = hit.event.params
         assertEquals("HomeScreen", params["screen_name"])

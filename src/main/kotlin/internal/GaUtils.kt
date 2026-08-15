@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-
 package com.criticalay.internal
 
 /**
  * Lightweight utility functions for the GA4 SDK.
  */
 internal object GaUtils {
-
     /** Returns true if the string is null, empty, or blank. */
     fun isBlank(value: String?): Boolean = value.isNullOrBlank()
 
@@ -44,9 +42,9 @@ internal object GaUtils {
      * @throws IllegalArgumentException if the name is invalid.
      */
     fun validateEventName(name: String) {
-        require(name.isNotBlank())           { "Event name must not be blank" }
-        require(name.length <= 40)           { "Event name must not exceed 40 characters: '$name'" }
-        require(name[0].isLetter())          { "Event name must start with a letter: '$name'" }
+        require(name.isNotBlank()) { "Event name must not be blank" }
+        require(name.length <= 40) { "Event name must not exceed 40 characters: '$name'" }
+        require(name[0].isLetter()) { "Event name must start with a letter: '$name'" }
         require(name.all { it.isLetterOrDigit() || it == '_' }) {
             "Event name must contain only letters, digits, and underscores: '$name'"
         }

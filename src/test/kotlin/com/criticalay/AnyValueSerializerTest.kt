@@ -28,11 +28,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class AnyValueSerializerTest {
-    private val json = Json {
-        serializersModule = SerializersModule {
-            contextual(AnyValueSerializer)
+    private val json =
+        Json {
+            serializersModule =
+                SerializersModule {
+                    contextual(AnyValueSerializer)
+                }
         }
-    }
 
     @Test
     fun `should serialize various types to JSON primitives`() {
@@ -70,19 +72,21 @@ class AnyValueSerializerTest {
      */
     @Test
     fun `should work within a map structure`() {
-        val params = mapOf<String, @kotlinx.serialization.Contextual Any>(
-            "category" to "UI",
-            "count" to 42,
-            "is_valid" to false
-        )
+        val params =
+            mapOf<String, @kotlinx.serialization.Contextual Any>(
+                "category" to "UI",
+                "count" to 42,
+                "is_valid" to false,
+            )
 
-        val jsonOutput = json.encodeToString(
-            MapSerializer(
-                serializer<String>(),
-                AnyValueSerializer
-            ),
-            params
-        )
+        val jsonOutput =
+            json.encodeToString(
+                MapSerializer(
+                    serializer<String>(),
+                    AnyValueSerializer,
+                ),
+                params,
+            )
 
         val expected = """{"category":"UI","count":42,"is_valid":false}"""
         assertEquals(expected, jsonOutput)

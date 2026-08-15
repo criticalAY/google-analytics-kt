@@ -29,7 +29,12 @@ import com.criticalay.request.ScreenViewHit
 import com.criticalay.request.TimingHit
 import com.criticalay.response.GaResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicLong
@@ -50,7 +55,6 @@ class GaImpl(
     override val config: GoogleAnalyticsConfig,
     private val httpClient: OkHttpClientImpl,
 ) : GoogleAnalytics {
-
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     // Mutex protecting the mutable batch buffer
@@ -80,11 +84,19 @@ class GaImpl(
     }
 
     override fun pageView(clientId: String): PageViewHit = PageViewHit(clientId, this)
+
     override fun event(clientId: String): EventHit = EventHit(clientId, this)
+
     override fun screenView(clientId: String): ScreenViewHit = ScreenViewHit(clientId, this)
+
     override fun exception(clientId: String): ExceptionHit = ExceptionHit(clientId, this)
+
     override fun timing(clientId: String): TimingHit = TimingHit(clientId, this)
-    override fun custom(clientId: String, name: String): CustomHit = CustomHit(clientId, name, this)
+
+    override fun custom(
+        clientId: String,
+        name: String,
+    ): CustomHit = CustomHit(clientId, name, this)
 
     override suspend fun send(request: GaRequest): GaResponse {
         if (!config.enabled) {
@@ -141,10 +153,11 @@ class GaImpl(
             // For batched sends we use a synthetic clientId — in a real app the
             // caller should use per-user clientIds via individual requests.
             // If batching is used, it's assumed all events share a logical sender.
-            val batchRequest = GaRequest(
-                clientId = "batch-flush",
-                events   = chunk.take(25), // hard GA4 limit
-            )
+            val batchRequest =
+                GaRequest(
+                    clientId = "batch-flush",
+                    events = chunk.take(25), // hard GA4 limit
+                )
             val response = httpClient.post(batchRequest)
             logValidationWarnings(response)
         }
@@ -162,9 +175,10 @@ class GaImpl(
     }
 
     /** Returns a snapshot of hit counts keyed by event name. */
-    suspend fun stats(): Map<String, Long> = countersMutex.withLock {
-        hitCounters.mapValues { it.value.get() }
-    }
+    suspend fun stats(): Map<String, Long> =
+        countersMutex.withLock {
+            hitCounters.mapValues { it.value.get() }
+        }
 
     private fun logValidationWarnings(response: GaResponse) {
         if (response.validationMessages.isNotEmpty()) {
@@ -178,10 +192,16 @@ class GaImpl(
 
     override fun close() {
         runBlocking {
-            try { flush() } catch (_: Exception) {}
+            try {
+                flush()
+            } catch (_: Exception) {
+            }
         }
         scope.cancel()
-        try { httpClient.close() } catch (_: Exception) {}
+        try {
+            httpClient.close()
+        } catch (_: Exception) {
+        }
         logger.info { "GA4: SDK closed" }
     }
 }

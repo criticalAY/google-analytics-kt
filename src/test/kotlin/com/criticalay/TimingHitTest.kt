@@ -26,11 +26,12 @@ class TimingHitTest {
 
     @Test
     fun `timing hit maps category, name, value and label to GA4 parameters`() {
-        val hit = TimingHit("client-1", mockGa)
-            .timingCategory("api")
-            .timingName("fetchUser")
-            .timingValue(342)
-            .timingLabel("logged-in")
+        val hit =
+            TimingHit("client-1", mockGa)
+                .timingCategory("api")
+                .timingName("fetchUser")
+                .timingValue(342)
+                .timingLabel("logged-in")
 
         val params = hit.event.params
         assertEquals("api", params["event_category"])

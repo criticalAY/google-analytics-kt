@@ -18,19 +18,20 @@ package com.criticalay
 
 import com.criticalay.request.EventHit
 import io.mockk.mockk
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 
 class EventHitTest {
     private val mockGa = mockk<GoogleAnalytics>(relaxed = true)
 
     @Test
     fun `test event hit mapping to parameters`() {
-        val eventHit = EventHit("client-id", mockGa)
-            .category("feature")
-            .action("opened")
-            .label("dark_mode")
-            .value(10)
+        val eventHit =
+            EventHit("client-id", mockGa)
+                .category("feature")
+                .action("opened")
+                .label("dark_mode")
+                .value(10)
 
         val params = eventHit.event.params
 

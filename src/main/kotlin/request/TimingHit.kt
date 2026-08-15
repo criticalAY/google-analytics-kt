@@ -32,9 +32,10 @@ import com.criticalay.GoogleAnalytics
  *   .send()
  * ```
  */
-class TimingHit(clientId: String, ga: GoogleAnalytics)
-    : BaseHit<TimingHit>("timing_complete", clientId, ga) {
-
+class TimingHit(
+    clientId: String,
+    ga: GoogleAnalytics,
+) : BaseHit<TimingHit>("timing_complete", clientId, ga) {
     /**
      * A category for the timed operation (e.g. "api", "db", "render").
      * Stored in the `event_category` parameter.

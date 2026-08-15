@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "2.3.10"
     id("com.vanniktech.maven.publish") version "0.36.0"
     kotlin("plugin.serialization") version "2.3.10"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "io.github.criticalay"
@@ -49,7 +50,6 @@ dependencies {
     implementation("io.github.oshai:kotlin-logging-jvm:6.0.9")
     implementation("org.slf4j:slf4j-api:2.0.13")
 
-
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("io.mockk:mockk:1.13.8")
@@ -61,4 +61,30 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+ktlint {
+    verbose.set(true)
+    android.set(false)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/build/**")
+    }
+}
+
+// `.git` is a directory in a normal clone and a file in a worktree, so test for existence only.
+val gitMetadata = rootProject.file(".git")
+val runningOnCi = providers.environmentVariable("CI").isPresent
+
+val installGitHooks by tasks.registering(Exec::class) {
+    description = "Configures git core.hooksPath to .githooks (enables ktlint pre-commit hook)."
+    group = "build setup"
+    // Setting the same value twice is a no-op, so there is nothing to read back first.
+    commandLine("git", "config", "core.hooksPath", ".githooks")
+    isIgnoreExitValue = true
+    onlyIf { gitMetadata.exists() && !runningOnCi }
+}
+
+tasks.named("ktlintCheck") {
+    dependsOn(installGitHooks)
 }

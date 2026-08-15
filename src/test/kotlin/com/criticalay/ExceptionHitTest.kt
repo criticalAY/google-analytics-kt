@@ -28,9 +28,10 @@ class ExceptionHitTest {
 
     @Test
     fun `description and fatal flag map to GA4 parameters`() {
-        val hit = ExceptionHit("client-1", mockGa)
-            .description("NPE at Foo.kt:42")
-            .fatal(true)
+        val hit =
+            ExceptionHit("client-1", mockGa)
+                .description("NPE at Foo.kt:42")
+                .fatal(true)
 
         val params = hit.event.params
         assertEquals("NPE at Foo.kt:42", params["description"])
