@@ -17,6 +17,7 @@
 package com.criticalay.request
 
 import com.criticalay.GoogleAnalytics
+import com.criticalay.SessionId
 import com.criticalay.internal.SessionManager
 import com.criticalay.response.GaResponse
 
@@ -43,21 +44,29 @@ abstract class BaseHit<T : BaseHit<T>>(
     internal var userId: String? = null
     internal var timestampMicros: Long? = null
 
-    internal var sessionId: String? = null
+    internal var sessionId: SessionId? = null
     internal var engagementTimeMs: Long? = null
 
     /** Sets the known user ID for cross-device tracking. */
     fun userId(value: String): T = (this as T).also { userId = value }
 
     /**
-     * Session identifier — required for user activity to appear in standard
-     * GA4 reports.  Usually a Unix-epoch-second string or UUID.
+     * Session identifier — required for user activity to appear in standard GA4 reports.
+     *
+     * Left unset, the library supplies one; set this only to align with an id minted
+     * elsewhere, such as a gtag `_ga_*` cookie.
      */
-    fun sessionId(value: String): T =
+    fun sessionId(value: SessionId): T =
         (this as T).also {
-            event.param("session_id", value)
+            event.param("session_id", value.value)
             sessionId = value
         }
+
+    @Deprecated(
+        "Use the SessionId overload, which documents the expected format",
+        ReplaceWith("sessionId(SessionId(value))", "com.criticalay.SessionId"),
+    )
+    fun sessionId(value: String): T = sessionId(SessionId(value))
 
     /**
      * Engagement time in milliseconds.  Required for sessions to count as
@@ -113,7 +122,7 @@ abstract class BaseHit<T : BaseHit<T>>(
     /** Builds the [GaRequest] from this hit's state. */
     fun buildRequest(): GaRequest {
         if (!event.params.containsKey("session_id")) {
-            event.param("session_id", SessionManager.sessionId)
+            event.param("session_id", SessionManager.currentSessionId().value)
         }
         if (!event.params.containsKey("engagement_time_msec")) {
             event.param("engagement_time_msec", 1L)

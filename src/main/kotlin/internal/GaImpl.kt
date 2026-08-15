@@ -27,6 +27,7 @@ import com.criticalay.request.GaRequest
 import com.criticalay.request.PageViewHit
 import com.criticalay.request.ScreenViewHit
 import com.criticalay.request.TimingHit
+import com.criticalay.request.UserPropertyValue
 import com.criticalay.response.GaResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +42,12 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.random.Random
 
 private val logger = KotlinLogging.logger {}
+
+/** User property carrying [GoogleAnalyticsConfig.appName]. */
+private const val APP_NAME_PROPERTY = "application_name"
+
+/** User property carrying [GoogleAnalyticsConfig.appVersion]. */
+private const val APP_VERSION_PROPERTY = "application_version"
 
 /**
  * Core implementation of [GoogleAnalytics].
@@ -98,6 +105,22 @@ class GaImpl(
         name: String,
     ): CustomHit = CustomHit(clientId, name, this)
 
+    /**
+     * User properties derived from the config and attached to every hit.
+     *
+     * Named distinctly from [com.criticalay.request.ScreenViewHit]'s `app_name` / `app_version`
+     * event params so the two don't land in GA4 as identically-labelled dimensions in
+     * different scopes.
+     *
+     * These are user-scoped custom dimensions: they must be registered under
+     * Admin -> Custom definitions before they appear in reports.
+     */
+    private val configUserProperties: Map<String, UserPropertyValue> =
+        buildMap {
+            config.appName?.takeIf { it.isNotBlank() }?.let { put(APP_NAME_PROPERTY, UserPropertyValue(it)) }
+            config.appVersion?.takeIf { it.isNotBlank() }?.let { put(APP_VERSION_PROPERTY, UserPropertyValue(it)) }
+        }
+
     override suspend fun send(request: GaRequest): GaResponse {
         if (!config.enabled) {
             logger.debug { "GA4: SDK disabled — dropping hit" }
@@ -108,12 +131,20 @@ class GaImpl(
             return GaResponse()
         }
 
+        val hit =
+            if (configUserProperties.isEmpty()) {
+                request
+            } else {
+                // caller-supplied properties win over the config
+                request.copy(userProperties = configUserProperties + request.userProperties)
+            }
+
         return if (config.batchingEnabled) {
-            addToBatch(request)
+            addToBatch(hit)
             GaResponse() // Batched — no immediate response
         } else {
-            val response = httpClient.post(request)
-            recordStats(request)
+            val response = httpClient.post(hit)
+            recordStats(hit)
             logValidationWarnings(response)
             response
         }

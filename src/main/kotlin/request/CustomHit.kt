@@ -37,7 +37,6 @@ import com.criticalay.GoogleAnalytics
  *   .param("tool_name", "brush")
  *   .param("duration_ms", 3400L)
  *   .param("canvas_width", 1920)
- *   .sessionId("session-abc")
  *   .send()
  * ```
  */

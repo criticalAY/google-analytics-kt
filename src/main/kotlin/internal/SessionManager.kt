@@ -16,20 +16,62 @@
 
 package com.criticalay.internal
 
+import com.criticalay.SessionId
+import java.util.concurrent.atomic.AtomicReference
+
 /**
- * Generates and holds a single GA4 session ID for the lifetime of the JVM process.
+ * Tracks the current GA4 session, starting a new one after a period of inactivity.
  *
- * GA4 Measurement Protocol requires `session_id` inside `event.params` for events
- * to appear in session-based reports (including Realtime). Without it, GA4 accepts
- * the hit (returns 204) but silently drops it from all reports.
+ * GA4 requires `session_id` in `event.params` for hits to appear in session-based
+ * reports; without it GA4 returns 204 but drops the hit from every report.
  *
- * The session ID is a Unix timestamp in **seconds** — this is the format GA4 expects
- * and matches the format used by the gtag.js SDK.
- *
- * Thread-safe via Kotlin's `by lazy` with default `LazyThreadSafetyMode.SYNCHRONIZED`.
+ * Sessions end after [DEFAULT_TIMEOUT_MILLIS] without a hit, matching GA4's own
+ * default, so a long-lived process no longer reports one endless session.
  */
 internal object SessionManager {
-    val sessionId: String by lazy {
-        (System.currentTimeMillis() / 1000L).toString()
+    /** GA4 ends a session after 30 minutes of inactivity. */
+    const val DEFAULT_TIMEOUT_MILLIS: Long = 30 * 60 * 1000L
+
+    private data class Session(
+        val id: SessionId,
+        val lastActivityMillis: Long,
+    )
+
+    private val current = AtomicReference<Session?>(null)
+
+    /**
+     * Wall clock rather than a monotonic one: [System.nanoTime] stalls while an Android
+     * device is in deep sleep, which would keep a session alive across exactly the idle
+     * stretches that should end it.
+     */
+    @Volatile
+    private var clock: () -> Long = System::currentTimeMillis
+
+    /**
+     * The live session id, recording this call as activity.
+     *
+     * Lock-free because it is reached from [com.criticalay.request.BaseHit.buildRequest],
+     * which is not a suspending function and so cannot take the coroutine mutex used elsewhere.
+     */
+    fun currentSessionId(): SessionId {
+        while (true) {
+            val now = clock()
+            val existing = current.get()
+            // a backwards jump gives a negative elapsed, which rotates rather than sticking
+            val elapsed = if (existing == null) Long.MAX_VALUE else now - existing.lastActivityMillis
+            val next =
+                if (elapsed in 0 until DEFAULT_TIMEOUT_MILLIS) {
+                    existing!!.copy(lastActivityMillis = now)
+                } else {
+                    Session(SessionId.fromEpochSeconds(now / 1000L), now)
+                }
+            if (current.compareAndSet(existing, next)) return next.id
+        }
+    }
+
+    /** Clears the session, optionally pinning a clock so tests need not sleep. */
+    internal fun resetForTesting(clock: () -> Long = System::currentTimeMillis) {
+        this.clock = clock
+        current.set(null)
     }
 }
