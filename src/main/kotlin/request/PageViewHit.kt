@@ -26,7 +26,6 @@ import com.criticalay.GoogleAnalytics
  * ga.pageView("client-id-123")
  *   .pageLocation("https://myapp.com/home")
  *   .pageTitle("Home")
- *   .sessionId("session-abc")
  *   .engagementTimeMs(500)
  *   .send()
  * ```

@@ -16,6 +16,8 @@
 
 package com.criticalay.internal
 
+import com.criticalay.SessionId
+
 /**
  * Generates and holds a single GA4 session ID for the lifetime of the JVM process.
  *
@@ -29,7 +31,7 @@ package com.criticalay.internal
  * Thread-safe via Kotlin's `by lazy` with default `LazyThreadSafetyMode.SYNCHRONIZED`.
  */
 internal object SessionManager {
-    val sessionId: String by lazy {
-        (System.currentTimeMillis() / 1000L).toString()
+    val sessionId: SessionId by lazy {
+        SessionId.fromEpochSeconds(System.currentTimeMillis() / 1000L)
     }
 }

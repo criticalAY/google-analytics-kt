@@ -37,9 +37,17 @@ class BaseHitTest {
 
     @Test
     fun `sessionId is stored both internally and as an event parameter`() {
+        val hit = EventHit("c1", mockGa).sessionId(SessionId("session-123"))
+        assertEquals("session-123", hit.event.params["session_id"])
+        assertEquals(SessionId("session-123"), hit.sessionId)
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun `the deprecated string overload still sets the session`() {
         val hit = EventHit("c1", mockGa).sessionId("session-123")
         assertEquals("session-123", hit.event.params["session_id"])
-        assertEquals("session-123", hit.sessionId)
+        assertEquals(SessionId("session-123"), hit.sessionId)
     }
 
     @Test
