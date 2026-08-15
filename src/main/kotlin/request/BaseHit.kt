@@ -122,7 +122,7 @@ abstract class BaseHit<T : BaseHit<T>>(
     /** Builds the [GaRequest] from this hit's state. */
     fun buildRequest(): GaRequest {
         if (!event.params.containsKey("session_id")) {
-            event.param("session_id", SessionManager.sessionId.value)
+            event.param("session_id", SessionManager.currentSessionId().value)
         }
         if (!event.params.containsKey("engagement_time_msec")) {
             event.param("engagement_time_msec", 1L)
