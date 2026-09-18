@@ -30,10 +30,10 @@ jobs:
       # Pinned to v5: gradle/actions@v6 moves caching into a proprietary component
       # governed by Gradle's Terms of Use.
       - name: Validate Gradle wrapper
-        uses: gradle/actions/wrapper-validation@v5
+        uses: gradle/actions/wrapper-validation@v6
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Ktlint
         run: ./gradlew ktlintCheck
