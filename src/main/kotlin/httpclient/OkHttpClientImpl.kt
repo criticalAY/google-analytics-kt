@@ -124,7 +124,7 @@ class OkHttpClientImpl(
                     )
                 }
             } catch (e: Exception) {
-                logger.error(e) { "Failed to send GA4 request to $url" }
+                logger.error(e) { "Failed to send GA4 request to ${config.effectiveEndpointUrl()}" }
                 GaResponse(statusCode = -1, requestBody = bodyJson)
             }
         }

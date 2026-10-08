@@ -53,6 +53,7 @@ dependencies {
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
     testImplementation("io.mockk:mockk:1.14.11")
+    testImplementation("ch.qos.logback:logback-classic:1.5.18")
 }
 
 kotlin {
